@@ -10,7 +10,7 @@ https://cloud.elastic.co/registration
     * https://vega.github.io/vega/examples/
     * https://vega.github.io/vega-lite/examples/
 - Discover
-    * apm/link-to/trace/{{value}}
+    * apm/link-to/transaction/{{value}}
 - APM Index: traces-apm*, logs-apm.error*
 - Distributed Tracing
     * Latency Correlation
@@ -41,12 +41,3 @@ https://www.elastic.co/blog/performing-real-user-monitoring-rum-with-elastic-apm
 
 ## 3. ES|QL
 https://www.elastic.co/guide/en/elasticsearch/reference/current/esql-getting-started.html 
-
-
-
-
-
-
-- 알림설정 예시
-- 머신러닝 적용 예시
-...
