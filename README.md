@@ -22,7 +22,7 @@ https://www.elastic.co/guide/en/kibana/current/transactions-annotations.html
 
 ```
 $ curl -X POST \
-  ${KIBANA_URL:9243}/apm/services/${SERVICE_NAME}/annotation \ 
+  ${KIBANA_URL:9243}/api/apm/services/${SERVICE_NAME}/annotation \ 
 -H 'Content-Type: application/json' \
 -H 'kbn-xsrf: true' \
 -H 'Authorization: ApiKey ${API_KEY}' \ 
