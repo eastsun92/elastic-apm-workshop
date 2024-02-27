@@ -6,14 +6,14 @@ https://cloud.elastic.co/registration
 
 ## 1. Scatter Plot (scatter.hjson)
 - Vega
-    * https://www.elastic.co/guide/en/kibana/current/vega.html
-    * https://vega.github.io/vega/examples/
-    * https://vega.github.io/vega-lite/examples/
+  * https://www.elastic.co/guide/en/kibana/current/vega.html
+  * https://vega.github.io/vega/examples/
+  * https://vega.github.io/vega-lite/examples/
 - Discover
-    * apm/link-to/transaction/{{value}}
+  * apm/link-to/transaction/{{value}}
 - APM Index: traces-apm*, logs-apm.error*
 - Distributed Tracing
-    * Latency Correlation
+  * Latency Correlation
 
 - Track deployments with annotations
 https://www.elastic.co/guide/en/kibana/current/transactions-annotations.html 
@@ -39,5 +39,9 @@ ${API_KEY}: Kibana > Stack Management > API keys > Create..
 https://www.elastic.co/blog/performing-real-user-monitoring-rum-with-elastic-apm
 
 
-## 3. ES|QL
+## 3. ML Job (Anomaly Detection)
+https://github.com/wikibook/es80/blob/main/Chapter5/dataset/webapp-pipeline.json
+
+
+## 4. ES|QL
 https://www.elastic.co/guide/en/elasticsearch/reference/current/esql-getting-started.html 

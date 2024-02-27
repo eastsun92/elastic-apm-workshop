@@ -1,0 +1,96 @@
+{
+    "description": "Ingest pipeline created by text structure finder",
+    "processors": [
+      {
+        "csv": {
+          "field": "message",
+          "target_fields": [
+            "timestamp",
+            "event.dataset",
+            "event.kind",
+            "event.action",
+            "user.name",
+            "http.request.method",
+            "http.request.bytes",
+            "http.response.bytes",
+            "http.response.status_code",
+            "url.full",
+            "user_agent.original",
+            "source.ip"
+          ],
+          "ignore_missing": false
+        }
+      },
+      {
+        "date": {
+          "field": "timestamp",
+          "timezone": "{{ event.timezone }}",
+          "formats": [
+            "dd/MM/yyyy HH:mm:ss"
+          ]
+        }
+      },
+      {
+        "convert": {
+          "field": "http.request.bytes",
+          "type": "long",
+          "ignore_missing": true
+        }
+      },
+      {
+        "convert": {
+          "field": "http.response.bytes",
+          "type": "long",
+          "ignore_missing": true
+        }
+      },
+      {
+        "convert": {
+          "field": "http.response.status_code",
+          "type": "long",
+          "ignore_missing": true
+        }
+      },
+      {
+        "dot_expander": {
+          "field": "user_agent.original"
+        }
+      },
+      {
+        "user_agent": {
+          "field": "user_agent.original"
+        }
+      },
+      {
+        "dot_expander": {
+          "field": "source.ip"
+        }
+      },
+      {
+        "geoip": {
+          "ignore_missing": true,
+          "field": "source.ip",
+          "target_field": "source.geo"
+        }
+      },
+      {
+        "dot_expander": {
+          "field": "url.full"
+        }
+      },
+      {
+        "dissect": {
+          "field": "url.full",
+          "pattern": "%{url.scheme}://%{url.domain}/%{url.path}"
+        }
+      },
+      {
+        "remove": {
+          "field": [
+            "timestamp",
+            "message"
+          ]
+        }
+      }
+    ]
+  }
