@@ -39,8 +39,10 @@ ${API_KEY}: Kibana > Stack Management > API keys > Create..
 https://www.elastic.co/blog/performing-real-user-monitoring-rum-with-elastic-apm
 
 
-## 3. ML Job (Anomaly Detection)
-https://github.com/wikibook/es80/blob/main/Chapter5/dataset/webapp-pipeline.json
+## 3. Anomaly Detection
+- Import .csv file
+- Ingest pipeline
+- Create ML Job
 
 
 ## 4. ES|QL
