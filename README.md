@@ -1,7 +1,9 @@
 # Elastic APM workshop
-https://events.elastic.co/o11yseminar1
+- https://events.elastic.co/o11yseminar1
 
-https://cloud.elastic.co/registration
+- https://docs.google.com/presentation/d/1lT6EWobXV34UgFGND7s9qUFHaLFHVlqQTmCfn4nOzgU
+
+- https://cloud.elastic.co/registration
 
 
 ## 1. Scatter Plot (scatter.hjson)
