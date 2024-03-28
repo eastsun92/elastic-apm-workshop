@@ -1,343 +1,414 @@
 {
-  $schema: https://vega.github.io/schema/vega/v5.json
-  data: [
-    {
-      name: source_0
-      url: {
-        %context%: true
-        %timefield%: @timestamp
-        index: traces-apm*
-        body: {
-          size: 5000
-          _source: [
-            @timestamp
-            transaction.id
-            transaction.duration.us
-            service.name
-          ]
-          sort: [
-            {
-              @timestamp: {
-                order: desc
+    $schema: https://vega.github.io/schema/vega/v5.json
+    data: [
+      {
+        name: source_0
+        url: {
+          %context%: true
+          %timefield%: @timestamp
+          index: logs-apm*
+          body: {
+            size: 500
+            sort: [
+              {
+                @timestamp: {
+                  order: desc
+                }
+              }
+            ]
+          }
+        }
+        transform: [
+          {
+            type: formula
+            as: transaction_id
+            expr: datum._source.transaction ? datum._source.transaction.id : null
+          }
+          {
+            type: formula
+            as: error_id
+            expr: datum._source.error ? ( datum._source.error.id ?  datum._source.error.id : null ) : null
+          }
+          {
+            type: formula
+            as: error_msg
+            expr: datum._source.message
+          }
+        ]
+        format: {
+          property: hits.hits
+        }
+      }
+      {
+        name: source_1
+        url: {
+          %context%: true
+          %timefield%: @timestamp
+          index: traces-apm*
+          body: {
+            size: 5000
+            sort: [
+              {
+                @timestamp: {
+                  order: desc
+                }
+              }
+            ]
+          }
+        }
+        transform: [
+          {
+            type: formula
+            as: time
+            expr: toDate(datum._source['@timestamp'])
+          }
+          {
+            type: formula
+            as: transaction_id
+            expr: datum._source.transaction ? datum._source.transaction.id : null
+          }
+          {
+            type: formula
+            as: duration
+            expr: datum._source.transaction ? ( datum._source.transaction.duration ? datum._source.transaction.duration.us / 1000 : null ) : null
+          }
+          {
+            type: filter
+            expr: datum.duration != null
+          }
+          {
+            type: formula
+            as: service_name
+            expr: datum._source.service.name
+          }
+          {
+            type: formula
+            as: url
+            // TODO: KIBANA_URL like https://workshop-kor.kb.asia-northeast3.gcp.elastic-cloud.com:9243
+            expr: "'KIBANA_URL/app/apm/link-to/transaction/' + datum._source.transaction.id"
+          }
+          {
+            type: lookup
+            from: source_0
+            key: transaction_id
+            fields: [
+              transaction_id
+            ]
+            values: [
+              error_id
+              error_msg
+            ]
+            default: ""
+          }
+        ]
+        format: {
+          property: hits.hits
+        }
+      }
+    ]
+    scales: [
+      {
+        name: x
+        type: time
+        range: width
+        domain: {
+          data: source_1
+          field: time
+        }
+      }
+      {
+        name: y
+        type: linear
+        range: height
+        domain: {
+          data: source_1
+          field: duration
+        }
+        nice: true
+      }
+      {
+        name: colors
+        type: ordinal
+        range: {
+          scheme: blues
+        }
+        domain: {
+          data: source_1
+          field: service_name
+        }
+      }
+      {
+        name: errors
+        type: ordinal
+        range: ['red']
+        domain: {
+          data: source_1
+          field: error_id
+        }
+      }
+    ]
+    axes: [
+      {
+        orient: bottom
+        scale: x
+      }
+      {
+        orient: left
+        scale: y
+      }
+    ]
+    legends: [
+      {
+        symbolLimit: 200
+        fill: colors
+        orient: right
+        encode: {
+          symbols: {
+            update: {
+              fillOpacity: {
+                value: 1
+              }
+              stroke: {
+                value: transparent
               }
             }
-            {
-              transaction.duration.us: {
-                order: desc
-              }
-            }
-          ]
+          }
         }
       }
-      transform: [
-        {
-          type: formula
-          as: time
-          expr: toDate(datum._source['@timestamp'])
+    ]
+    marks: [
+      {
+        name: point
+        type: symbol
+        style: [
+          point
+        ]
+        from: {
+          data: source_1
         }
-        {
-          type: formula
-          as: duration
-          expr: datum._source.transaction.duration ? datum._source.transaction.duration.us / 1000 : null
-        }
-        {
-          type: formula
-          as: service_name
-          expr: datum._source.service.name
-        }
-        {
-          type: formula
-          as: url
-          // TODO: KIBANA_URL like https://workshop-kor.kb.asia-northeast3.gcp.elastic-cloud.com:9243
-          expr: "'KIBANA_URL/app/apm/link-to/transaction/' + datum._source.transaction.id"
-        }
-      ]
-      format: {
-        property: hits.hits
-      }
-    }
-  ]
-  scales: [
-    {
-      name: x
-      type: time
-      range: width
-      domain: {
-        data: source_0
-        field: time
-      }
-    }
-    {
-      name: y
-      type: linear
-      range: height
-      domain: {
-        data: source_0
-        field: duration
-      }
-    }
-    {
-      name: colors
-      type: ordinal
-      range: {
-        scheme: rainbow
-      }
-      domain: {
-        data: source_0
-        field: service_name
-      }
-    }
-  ]
-  axes: [
-    {
-      orient: bottom
-      scale: x
-    }
-    {
-      orient: left
-      scale: y
-    }
-  ]
-  legends: [
-    {
-      symbolLimit: 200
-      fill: colors
-      orient: right
-      encode: {
-        symbols: {
+        encode: {
           update: {
-            fillOpacity: {
-              value: 0.5
+            x: {
+              scale: x
+              field: time
+            }
+            y: {
+              scale: y
+              field: duration
+            }
+            size: [
+              {
+                value: 30
+              }
+            ]
+            shape: {
+              value: circle
+            }
+            fill: [
+              {
+                test: datum.error_id
+                scale: errors
+                field: error_id
+              }
+              {
+                scale: colors
+                field: service_name
+              }
+            ]
+            color: {
+              value: green
+            }
+            href: {
+              field: url
+            }
+            cursor: {
+              value: pointer
+            }
+            tooltip: {
+              signal: "{'service.name': datum.service_name, 'transaction.id': datum.transaction_id, 'duration': datum.duration, 'url': datum.url, 'error.id': datum.error_id, 'message': datum.error_msg}"
+            }
+          }
+        }
+      }
+      {
+        type: rule
+        name: heightLine
+        interactive: false
+        encode: {
+          update: {
+            y: {
+              value: 0
+            }
+            y2: {
+              signal: height
             }
             stroke: {
-              value: transparent
+              value: gray
+            }
+            strokeDash: {
+              value: [
+                2
+                1
+              ]
+            }
+            x: {
+              signal: max(currentX,0)
+            }
+            defined: {
+              signal: currentX > 0
             }
           }
         }
       }
-    }
-  ]
-  marks: [
-    {
-      name: point
-      type: symbol
-      style: [
-        point
-      ]
-      from: {
-        data: source_0
-      }
-      encode: {
-        update: {
-          x: {
-            scale: x
-            field: time
-          }
-          y: {
-            scale: y
-            field: duration
-          }
-          size: {
-              value: 30
-          }
-          shape: {
-              value: circle
-          }
-          fill: {
-            value: transparent
-          }
-          stroke: {
-            scale: colors
-            field: service_name
-          }
-          href: {
-            field: url
-          }
-          cursor: {
-            value: pointer
-          }
-          tooltip: {
-            signal: "{'service.name': datum.service_name, 'transaction.id': datum._source.transaction.id, 'duration': datum.duration, 'url': datum.url}"
+      {
+        type: rect
+        name: selectedRect
+        encode: {
+          update: {
+            height: {
+              signal: height
+            }
+            fill: {
+              value: "#333"
+            }
+            fillOpacity: {
+              value: 0.2
+            }
+            x: {
+              signal: selected[0]
+            }
+            x2: {
+              signal: selected[1]
+            }
+            y: {
+              signal: selected[2]
+            }
+            y2: {
+              signal: selected[3]
+            }
+            defined: {
+              signal: selected[0] !== selected[1] && selected[2] !== selected[3]
+            }
           }
         }
       }
-    }
-    {
-      type: rule
-      name: heightLine
-      interactive: false
-      encode: {
-        update: {
-          y: {
-            value: 0
+    ]
+    signals: [
+      {
+        name: currentX
+        value: -1
+        on: [
+          {
+            events: {
+              type: mousemove
+              source: view
+            }
+            update: clamp(x(), 0, width)
           }
-          y2: {
-            signal: height
+          {
+            events: {
+              type: mouseout
+              source: view
+            }
+            update: "-1"
           }
-          stroke: {
-            value: gray
-          }
-          strokeDash: {
-            value: [
-              2
-              1
-            ]
-          }
-          x: {
-            signal: max(currentX,0)
-          }
-          defined: {
-            signal: currentX > 0
-          }
-        }
+        ]
       }
-    }
-    {
-      type: rect
-      name: selectedRect
-      encode: {
-        update: {
-          height: {
-            signal: height
+      {
+        name: currentY
+        value: -1
+        on: [
+          {
+            events: {
+              type: mousemove
+              source: view
+            }
+            update: clamp(y(), 0, height)
           }
-          fill: {
-            value: "#333"
+          {
+            events: {
+              type: mouseout
+              source: view
+            }
+            update: "-1"
           }
-          fillOpacity: {
-            value: 0.2
-          }
-          x: {
-            signal: selected[0]
-          }
-          x2: {
-            signal: selected[1]
-          }
-          y: {
-            signal: selected[2]
-          }
-          y2: {
-            signal: selected[3]
-          }
-          defined: {
-            signal: selected[0] !== selected[1] && selected[2] !== selected[3]
-          }
-        }
+        ]
       }
-    }
-  ]
-  signals: [
-    {
-      name: currentX
-      value: -1
-      on: [
-        {
-          events: {
-            type: mousemove
-            source: view
+      {
+        name: selected
+        value: [
+          0
+          0
+          0
+          0
+        ]
+        on: [
+          {
+            events: {
+              type: mousedown
+              source: view
+            }
+            update: "[clamp(x(), 0, width), clamp(x(), 0, width), clamp(0, y(), height), clamp(y(), 0, height)]"
           }
-          update: clamp(x(), 0, width)
-        }
-        {
-          events: {
-            type: mouseout
-            source: view
+          {
+            events: {
+              type: mousemove
+              source: window
+              consume: true
+              between: [
+                {
+                  type: mousedown
+                  source: view
+                }
+                {
+                  merge: [
+                    {
+                      type: mouseup
+                      source: window
+                    }
+                    {
+                      type: keydown
+                      source: window
+                      filter: event.key === 'Escape'
+                    }
+                  ]
+                }
+              ]
+            }
+            update: "[selected[0], clamp(x(), 0, width), selected[2], clamp(y(), 0, height)]"
           }
-          update: "-1"
-        }
-      ]
-    }
-    {
-      name: currentY
-      value: -1
-      on: [
-        {
-          events: {
-            type: mousemove
-            source: view
+          {
+            events: {
+              type: keydown
+              source: window
+              filter: event.key === 'Escape'
+            }
+            update: "[0, 0, 0, 0]"
           }
-          update: clamp(y(), 0, height)
-        }
-        {
-          events: {
-            type: mouseout
-            source: view
+        ]
+      }
+      {
+        name: applyTimeFilter
+        value: null
+        on: [
+          {
+            events: {
+              type: mouseup
+              source: view
+            }
+            update:
+              '''
+              selected[0] !== selected[1] ? (
+                kibanaSetTimeFilter(
+                  invert('x',min(selected[0], selected[1])),
+                  invert('x',max(selected[0], selected[1]))
+                )
+              ): null
+              '''
           }
-          update: "-1"
-        }
-      ]
-    }
-    {
-      name: selected
-      value: [
-        0
-        0
-        0
-        0
-      ]
-      on: [
-        {
-          events: {
-            type: mousedown
-            source: view
-          }
-          update: "[clamp(x(), 0, width), clamp(x(), 0, width), clamp(y(), 0, height), clamp(y(), 0, height)]"
-        }
-        {
-          events: {
-            type: mousemove
-            source: window
-            consume: true
-            between: [
-              {
-                type: mousedown
-                source: view
-              }
-              {
-                merge: [
-                  {
-                    type: mouseup
-                    source: window
-                  }
-                  {
-                    type: keydown
-                    source: window
-                    filter: event.key === 'Escape'
-                  }
-                ]
-              }
-            ]
-          }
-          update: "[selected[0], clamp(x(), 0, width), selected[2], clamp(y(), 0, height)]"
-        }
-        {
-          events: {
-            type: keydown
-            source: window
-            filter: event.key === 'Escape'
-          }
-          update: "[0, 0, 0, 0]"
-        }
-      ]
-    }
-    {
-      name: applyTimeFilter
-      value: null
-      on: [
-        {
-          events: {
-            type: mouseup
-            source: view
-          }
-          update:
-            '''
-            selected[0] !== selected[1] ? kibanaSetTimeFilter(
-            invert('x',selected[0]),
-            invert('x',selected[1])) : null
-            '''
-        }
-      ]
-    }
-    {
+        ]
+      }
+      {
       name: applyDurationFilter
       value: null
       on: [
@@ -370,5 +441,6 @@
         }
       ]
     }
-  ]
-}
+    ]
+  }
+  
