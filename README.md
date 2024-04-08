@@ -1,7 +1,7 @@
 # Elastic APM workshop
 - https://events.elastic.co/o11yseminar1
 
-- https://docs.google.com/presentation/d/1lT6EWobXV34UgFGND7s9qUFHaLFHVlqQTmCfn4nOzgU
+- https://docs.google.com/presentation/d/1KpuaRgvJchULjPAdbjMqjDlNU8Uw3oU3r1zEen8Wo9M
 
 - https://cloud.elastic.co/registration
 
